@@ -16,9 +16,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from . import views
+from PortfolioApp import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('/api/repos', views.repos),
+    path('api/repos/receive', views.getRepos, name='getRepos'),
 ]

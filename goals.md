@@ -1,14 +1,15 @@
-#Goals for website
+# Goals for Website
 
-##Frontend
+## Frontend
 
-I wish to create a Linux / terminal type navigation from page to page that shows off my personality OR early windows desktop with each page being an application
+I wish to create a Linux/terminal-style navigation from page to page that shows off my personality,  
+or an early Windows desktop style with each page being an application.
 
-##Backend
+## Backend
 
-Golang used to make a fast concurrent api for github no django core bloat
-Django communicates between them all and helps with dynamic data and displaying it to web
+Golang will be used to make a fast, concurrent API for GitHub (no Django core bloat).  
+Django communicates between them all and helps with dynamic data and displaying it to the web.
 
-Machine Learnkng
+## Machine Learning
 
-**Pytorch used to make a NLP pipeline
+PyTorch will be used to create an NLP pipeline.

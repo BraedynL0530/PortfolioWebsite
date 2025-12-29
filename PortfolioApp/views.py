@@ -1,9 +1,6 @@
 import json
-
 from django.http import JsonResponse
-from django.shortcuts import render
 import requests
-from django.utils.text import normalize_newlines
 from django.views.decorators.csrf import csrf_exempt
 from models import Repositorys
 from PortfolioApp.utils import summarizeReadme

@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -23,27 +24,37 @@ func main() {
 		log.Fatal("GITHUB_TOKEN not set")
 	}
 	starRanges := []string{
-	"stars:100..200",
-	"stars:201..400",
-	"stars:401..800",
-	"stars:801..1600",
-	"stars:1601..3200",
-}
+		"stars:100..200",
+		"stars:201..400",
+		"stars:401..600",
+		"stars:601..801",
+		"stars:801..1000",
+		"stars:1001..1200",
+		"stars:1201..1400",
+		"stars:1401..2000",
+	}
+	type ReadmeData struct {
+		Readme string `json:"readme"` // struct so its not a single array and easier to loop over
+	}
+
+	var allReadmes []ReadmeData // fixxed placement so json should no longer overwrite
+
 	for _, starRange := range starRanges {
-		var allReadmes []string
+		log.Printf("\n Querying range: %s\n", starRange)
+
 		cursor := ""
 		page := 1
-		totalPages := 50 // Adjust this to get more (10 pages ~1000 repos)
+		totalPages := 9 // Adjust this to liking but past 10 you get limited and need to change part of query or do stars lilke i  did(10 pages suggested or make query more specific)
 
 		for page <= totalPages {
-			log.Printf("\n📄 Fetching page %d/%d...\n", page, totalPages)
+			log.Printf("\nFetching page %d/%d...\n", page, totalPages)
 
 			afterClause := ""
 			if cursor != "" {
 				afterClause = fmt.Sprintf(`, after: "%s"`, cursor)
 			}
 
-		query := fmt.Sprintf(`
+			query := fmt.Sprintf(`
 		query {
 			search(type: REPOSITORY, query: "%s fork:false", first: 100%s) {
 				pageInfo {
@@ -69,53 +80,56 @@ func main() {
 		}
 		`, starRange, afterClause)
 
-		request := graphql.NewRequest(query)
-		request.Header.Set("Authorization", "Bearer "+token)
+			request := graphql.NewRequest(query)
+			request.Header.Set("Authorization", "Bearer "+token)
 
-		var resp GithubReposData
-		if err := client.Run(context.Background(), request, &resp); err != nil {
-			log.Printf("❌ Error on page %d: %v\n", page, err)
-			break
-		}
-
-		foundInPage := 0
-		for _, repo := range resp.Search.Nodes {
-			var readmeText string
-			// Checks for uppcase "README.md"
-			if repo.Readme != nil && repo.Readme.Text != "" {
-				readmeText = repo.Readme.Text
-				readmeText = Strip(readmeText)
-				// Falls back if its lowercase, "readme.md"
-			} else if repo.ReadmeLower != nil && repo.ReadmeLower.Text != "" {
-				readmeText = repo.ReadmeLower.Text
-				readmeText = Strip(readmeText)
+			var resp GithubReposData
+			if err := client.Run(context.Background(), request, &resp); err != nil {
+				log.Printf("❌ Error on page %d: %v\n", page, err)
+				break
 			}
 
-			if readmeText != "" {
-				allReadmes = append(allReadmes, readmeText)
-				foundInPage++
+			foundInPage := 0
+			for _, repo := range resp.Search.Nodes {
+				var readmeText string
+				// Checks for uppcase "README.md"
+				if repo.Readme != nil && repo.Readme.Text != "" {
+					readmeText = repo.Readme.Text
+					readmeText = Strip(readmeText)
+					readmeText = strings.ReplaceAll(readmeText, "\n", "")
+					// Falls back if its lowercase, "readme.md"
+				} else if repo.ReadmeLower != nil && repo.ReadmeLower.Text != "" {
+					readmeText = repo.ReadmeLower.Text
+					readmeText = Strip(readmeText)
+					readmeText = strings.ReplaceAll(readmeText, "\n", "") // Strip left to many "\n"
+				}
+
+				if readmeText != "" {
+					allReadmes = append(allReadmes, ReadmeData{Readme: readmeText})
+					foundInPage++
+				}
 			}
+
+			log.Printf("✅ Page %d: Found %d READMEs (Total: %d)\n", page, foundInPage, len(allReadmes))
+
+			if !resp.Search.PageInfo.HasNextPage {
+				log.Println(" No more pages available")
+				break
+			}
+
+			cursor = resp.Search.PageInfo.EndCursor
+			page++
+
+			time.Sleep(1 * time.Second)
 		}
 
-		log.Printf("✅ Page %d: Found %d READMEs (Total: %d)\n", page, foundInPage, len(allReadmes))
-
-		if !resp.Search.PageInfo.HasNextPage {
-			log.Println(" No more pages available")
-			break
+		if len(allReadmes) == 0 {
+			log.Fatal("No READMEs found")
 		}
 
-		cursor = resp.Search.PageInfo.EndCursor
-		page++
+		log.Printf("\nSaving %d READMEs...\n", len(allReadmes))
 
-		time.Sleep(1 * time.Second)
 	}
-
-	if len(allReadmes) == 0 {
-		log.Fatal("No READMEs found")
-	}
-
-	log.Printf("\nSaving %d READMEs...\n", len(allReadmes))
-
 	file, err := os.Create("readme_training.json")
 	if err != nil {
 		log.Fatal(err)

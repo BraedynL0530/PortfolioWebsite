@@ -22,49 +22,52 @@ func main() {
 	if token == "" {
 		log.Fatal("GITHUB_TOKEN not set")
 	}
+	starRanges := []string{
+	"stars:100..200",
+	"stars:201..400",
+	"stars:401..800",
+	"stars:801..1600",
+	"stars:1601..3200",
+}
+	for _, starRange := range starRanges {
+		var allReadmes []string
+		cursor := ""
+		page := 1
+		totalPages := 50 // Adjust this to get more (10 pages ~1000 repos)
 
-	var allReadmes []string
-	cursor := ""
-	page := 1
-	totalPages := 50 // Adjust this to get more (10 pages ~1000 repos)
+		for page <= totalPages {
+			log.Printf("\n📄 Fetching page %d/%d...\n", page, totalPages)
 
-	for page <= totalPages {
-		log.Printf("\n📄 Fetching page %d/%d...\n", page, totalPages)
-
-		afterClause := ""
-		if cursor != "" {
-			afterClause = fmt.Sprintf(`, after: "%s"`, cursor)
-		}
+			afterClause := ""
+			if cursor != "" {
+				afterClause = fmt.Sprintf(`, after: "%s"`, cursor)
+			}
 
 		query := fmt.Sprintf(`
-        query {
-            search(type: REPOSITORY, query: "stars:>100 fork:false", first: 100%s) {
-                pageInfo {
-                    hasNextPage
-                    endCursor
-                }
-                nodes {
-                    ... on Repository {
-                        nameWithOwner
-                        stargazerCount
-                        primaryLanguage {
-                            name
-                        }
-                        readme: object(expression: "HEAD:README.md") {
-                            ... on Blob {
-                                text
-                            }
-                        }
-                        readmeLower: object(expression: "HEAD:readme.md") {
-                            ... on Blob {
-                                text
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        `, afterClause)
+		query {
+			search(type: REPOSITORY, query: "%s fork:false", first: 100%s) {
+				pageInfo {
+					hasNextPage
+					endCursor
+				}
+				nodes {
+					... on Repository {
+						nameWithOwner
+						stargazerCount
+						primaryLanguage {
+							name
+						}
+						readme: object(expression: "HEAD:README.md") {
+							... on Blob { text }
+						}
+						readmeLower: object(expression: "HEAD:readme.md") {
+							... on Blob { text }
+						}
+					}
+				}
+			}
+		}
+		`, starRange, afterClause)
 
 		request := graphql.NewRequest(query)
 		request.Header.Set("Authorization", "Bearer "+token)

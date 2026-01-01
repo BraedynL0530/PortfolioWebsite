@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import './App.css'
+import Terminal from './componets/terminal'
+import Boring from './componets/boring-nav'
 
 function App() {
   const [isTerminal, setIsTerminal] = useState(true);

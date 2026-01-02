@@ -55,8 +55,29 @@ function Terminal() {
                 break;
 
             case 'cd':
-
+                if (!arg) {
+                    output.type = 'error';
+                    output.result = 'cd requires a page name';
+                } else if (Object.keys(validPages).includes(arg.toLowerCase())) {
+                    output.type = 'info';
+                    output.result = `Opening ${arg}...`;
+                    // redirect after a small delay for UX
+                    setTimeout(() => {
+                        window.location.href = `/${arg.replace(/ /g, '-')}`;
+                    }, 300);
+                } else {
+                    output.type = 'error';
+                    output.result = `No such page: ${arg}`;
+                }
                 break;
+
+            case 'ls':
+                output.type = 'info';
+                output.result = Object.entries(validPages)
+                    .map(([page, desc]) => `${page.padEnd(15)} - ${desc}`)
+                    .join('\n');
+                break;
+
             default:
                 output.type = 'error';
                 output.result = `Command not found: ${command}. Type 'help' for available commands.`;
@@ -80,9 +101,7 @@ function Terminal() {
             </div>
 
             <div className="terminal-body">
-                <pre className="ascii-cat">{asciiCat}</pre>
-                    {/* History */}
-                    {history.map((entry, i) => (
+                <pre className="ascii-cat">{asciiCat}</pre>                    {history.map((entry, i) => (
                         <div key={i} className="history-entry">
                             <div className="history-command">
                                 <span className="prompt">{currentPath}$ </span>
@@ -109,7 +128,7 @@ function Terminal() {
                         className={getCommandColor(input)}
                         autoFocus
                     />
-            </div>
+                </div>
         </div>
     </>
     )

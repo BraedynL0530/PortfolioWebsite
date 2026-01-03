@@ -1,4 +1,4 @@
-import 'src/terminal.css'
+import './terminal.css'
 import {useState} from "react";
 
 
@@ -20,7 +20,12 @@ function Terminal() {
     const [history, setHistory] = useState([])
     const [input, setInput] = useState('');
     const currentPath = "C:/Users/Braedyn/Desktop/Portfolio"
-    const asciiCat =`` // add ascii cat here
+    const asciiCat = `
+  ／l、
+ (ﾟ､ ｡ ７
+  l  ~ヽ
+  じしf_,)ノ
+`;
 
     function getCommandColor(text) {
         const parts = text.trim().split(' ');
@@ -77,7 +82,9 @@ function Terminal() {
                     .map(([page, desc]) => `${page.padEnd(15)} - ${desc}`)
                     .join('\n');
                 break;
-
+            case 'clear':
+                setHistory([]);
+                break;
             default:
                 output.type = 'error';
                 output.result = `Command not found: ${command}. Type 'help' for available commands.`;

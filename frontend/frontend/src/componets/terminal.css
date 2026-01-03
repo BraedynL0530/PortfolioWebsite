@@ -1,0 +1,106 @@
+/* Terminal wrapper */
+.terminal {
+  width: 100%;
+  max-width: 800px;
+  margin: 2rem auto;
+  background: #1e1e1e;
+  color: #ffffff;
+  font-family: 'Courier New', Courier, monospace;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Terminal header (the colored circles) */
+.terminal-header {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: #505050;
+}
+
+.circle {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.red { background: #ff5f56; }
+.yellow { background: #ffbd2e; }
+.green { background: #27c93f; }
+
+/* Terminal body */
+.terminal-body {
+  padding: 1rem;
+  flex: 1;
+  overflow-y: auto;
+  white-space: pre-wrap;
+}
+
+/* ASCII cat */
+.ascii-cat {
+  color: #f1c40f;
+  font-family: "Courier New", Courier, monospace;
+  margin-bottom: 1rem;
+}
+
+/* History entries */
+.history-entry {
+  margin-bottom: 0.5rem;
+}
+
+.history-command {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Prompt */
+.prompt {
+  color: #00ff00;
+}
+
+/* Command text coloring */
+.command-text.valid { color: #00ff00; }
+.command-text.invalid { color: #ff4d4d; }
+.command-text.error { color: #ff4d4d; }
+.command-text.info { color: #00dfff; }
+.command-text.default { color: #ffffff; }
+
+/* Output text */
+.output.valid { color: #00ff00; }
+.output.error { color: #ff4d4d; }
+.output.info { color: #00dfff; }
+.output.default { color: #ffffff; }
+
+/* Input */
+.terminal-input {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background: #2a2a2a;
+  border-top: 1px solid #444;
+}
+
+.terminal-input input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1rem;
+  outline: none;
+}
+
+/* Blinking cursor effect */
+.terminal-input input::after {
+  content: '|';
+  animation: blink 1s step-start infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}

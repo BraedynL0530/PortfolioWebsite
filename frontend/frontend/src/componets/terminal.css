@@ -3,11 +3,11 @@
   width: 100%;
   max-width: 800px;
   margin: 2rem auto;
-  background: #1e1e1e;
-  color: #ffffff;
-  font-family: 'Courier New', Courier, monospace;
-  border-radius: 8px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  background: #1a1a1a;
+  color: #d4d4d4;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Courier New', monospace;
+  border-radius: 10px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.7), 0 0 0 0.5px rgba(255,255,255,0.08);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -17,34 +17,69 @@
 .terminal-header {
   display: flex;
   gap: 0.5rem;
-  padding: 0.5rem;
-  background: #505050;
+  padding: 0.75rem 1rem;
+  background: #2d2d2d;
+  border-bottom: 1px solid #1a1a1a;
 }
 
 .circle {
-  width: 12px;
-  height: 12px;
+  width: 13px;
+  height: 13px;
   border-radius: 50%;
   display: inline-block;
+  transition: all 0.2s ease;
+  cursor: pointer;
 }
 
-.red { background: #ff5f56; }
-.yellow { background: #ffbd2e; }
-.green { background: #27c93f; }
+.circle:hover {
+  filter: brightness(1.2);
+}
+
+.red {
+  background: linear-gradient(135deg, #ff6057 0%, #ff5f56 100%);
+  box-shadow: 0 0 0 0.5px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.3);
+}
+
+.yellow {
+  background: linear-gradient(135deg, #ffbd44 0%, #ffbd2e 100%);
+  box-shadow: 0 0 0 0.5px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.3);
+}
+
+.green {
+  background: linear-gradient(135deg, #28ca42 0%, #27c93f 100%);
+  box-shadow: 0 0 0 0.5px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.3);
+}
 
 /* Terminal body */
 .terminal-body {
   padding: 1rem;
   flex: 1;
   overflow-y: auto;
-  white-space: pre-wrap;
+  min-height: 400px;
+  background: #1a1a1a;
 }
 
 /* ASCII cat */
 .ascii-cat {
-  color: #f1c40f;
-  font-family: "Courier New", Courier, monospace;
+  color: #00ff88;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Courier New', monospace;
+  white-space: pre;       /* preserves spaces & newlines */
+  display: block;
+  line-height: 1.5;       /* tighter lines so it doesn’t stretch */
+  font-size: 1rem;     /* slightly bigger for readability */
+  overflow-x: auto;       /* allows scrolling if line too long */
+  text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+  margin-bottom: 0.75rem;
+  padding: 0;
+}
+
+/* Intro text */
+.intro-text {
+  color: #8b949e;
   margin-bottom: 1rem;
+  font-size: 0.9rem;
+  white-space: pre-line;
+  line-height: 1.5;
 }
 
 /* History entries */
@@ -60,39 +95,41 @@
 
 /* Prompt */
 .prompt {
-  color: #00ff00;
+  color: #5af78e;
+  font-weight: 600;
 }
 
 /* Command text coloring */
-.command-text.valid { color: #00ff00; }
-.command-text.invalid { color: #ff4d4d; }
-.command-text.error { color: #ff4d4d; }
-.command-text.info { color: #00dfff; }
-.command-text.default { color: #ffffff; }
+.command-text.valid { color: #5af78e; }
+.command-text.invalid { color: #f85149; }
+.command-text.error { color: #f85149; }
+.command-text.info { color: #58a6ff; }
+.command-text.default { color: #d4d4d4; }
 
 /* Output text */
-.output.valid { color: #00ff00; }
-.output.error { color: #ff4d4d; }
-.output.info { color: #00dfff; }
-.output.default { color: #ffffff; }
+.output.valid { color: #5af78e; }
+.output.error { color: #f85149; }
+.output.info { color: #58a6ff; }
+.output.default { color: #d4d4d4; }
 
 /* Input */
 .terminal-input {
   display: flex;
   align-items: center;
-  padding: 0.5rem 1rem;
-  background: #2a2a2a;
-  border-top: 1px solid #444;
+  padding: 0.75rem 1rem;
+  background: #1a1a1a;
+  border-top: 1px solid #2d2d2d;
 }
 
 .terminal-input input {
   flex: 1;
   background: transparent;
   border: none;
-  color: #ffffff;
-  font-family: 'Courier New', Courier, monospace;
+  color: #d4d4d4;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Courier New', monospace;
   font-size: 1rem;
   outline: none;
+  caret-color: #5af78e;
 }
 
 /* Blinking cursor effect */

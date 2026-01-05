@@ -21,10 +21,16 @@ function Terminal() {
     const [input, setInput] = useState('');
     const currentPath = "C:/Users/Braedyn/Desktop/Portfolio"
     const asciiCat = `
-  ／l、
- (ﾟ､ ｡ ７
-  l  ~ヽ
-  じしf_,)ノ
+            _ _ _    
+　　　　　/ ＞　　フ　
+　　　　　      | 　_　 _ l      
+　 　　　\\ \` ミ_wノ　
+　　 　 /　　　 　 |　
+　　　 /　 ヽ　　 ﾉ　
+　 　 │　　|　|　|　
+　／￣|　　 |　|　|　
+　| (￣ヽ＿_ヽ_)__)　
+＼二二二二二つ　　
 `;
 
     function getCommandColor(text) {
@@ -108,7 +114,9 @@ function Terminal() {
             </div>
 
             <div className="terminal-body">
-                <pre className="ascii-cat">{asciiCat}</pre>                    {history.map((entry, i) => (
+                <pre className="ascii-cat">{asciiCat}</pre>
+                <p className="intro-text">15 year old fullstack developer based in NC.{'\n'} Type 'help' to view commands.</p>
+                {history.map((entry, i) => (
                         <div key={i} className="history-entry">
                             <div className="history-command">
                                 <span className="prompt">{currentPath}$ </span>

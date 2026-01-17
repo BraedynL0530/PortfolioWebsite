@@ -11,28 +11,32 @@ import Boring from './componets/boring-nav'
 function App() {
   const [isTerminal, setIsTerminal] = useState(true);
   return (
-
     <>
       <Router>
-          <div className="header">
+        <div className="header">
+          <div className="header-left">
             <h1>Hi! I'm Braedyn!</h1>
             <p>I'm a full stack developer specialized in Django and React</p>
+          </div>
+
+          <div className="header-right">
             <button className="site-toggle" onClick={() => setIsTerminal(!isTerminal)}>
               {isTerminal ? "Boring Nav" : "Terminal nav"}
             </button>
+
             <div className="social-buttons">
-              <button>placeholder</button>
+              <button>GitHub</button>
+              <button>LinkedIn</button>
+              <button>Twitter</button>
+              <button>Email</button>
             </div>
           </div>
+        </div>
 
-          <Routes>
-            <Route path="/" element={isTerminal ? <Terminal /> : <Boring />} />
-
-          </Routes>
-</Router>
-
-
-
+        <Routes>
+          <Route path="/" element={isTerminal ? <Terminal /> : <Boring />} />
+        </Routes>
+      </Router>
     </>
   )
 }

@@ -50,24 +50,43 @@
   box-shadow: 0 0 0 0.5px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.3);
 }
 
-/* Terminal body */
+/* Terminal body - UPDATED for responsive height */
 .terminal-body {
   padding: 1rem;
   flex: 1;
   overflow-y: auto;
-  min-height: 400px;
+  overflow-x: hidden;
+  max-height: min(500px, 60vh); /* Responsive: smaller of 500px or 60% viewport */
   background: #1a1a1a;
+}
+
+/* Custom scrollbar for terminal body */
+.terminal-body::-webkit-scrollbar {
+  width: 10px;
+}
+
+.terminal-body::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+.terminal-body::-webkit-scrollbar-thumb {
+  background: #00ff88;
+  border-radius: 5px;
+}
+
+.terminal-body::-webkit-scrollbar-thumb:hover {
+  background: #00ff88;
 }
 
 /* ASCII cat */
 .ascii-cat {
   color: #00ff88;
   font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Courier New', monospace;
-  white-space: pre;       /* preserves spaces & newlines */
+  white-space: pre;
   display: block;
-  line-height: 1.5;       /* tighter lines so it doesn’t stretch */
-  font-size: 1rem;     /* slightly bigger for readability */
-  overflow-x: auto;       /* allows scrolling if line too long */
+  line-height: 1.5;
+  font-size: 1rem;
+  overflow-x: auto;
   text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
   margin-bottom: 0.75rem;
   padding: 0;
@@ -95,19 +114,19 @@
 
 /* Prompt */
 .prompt {
-  color: #5af78e;
+  color: #00ff88;
   font-weight: 600;
 }
 
 /* Command text coloring */
-.command-text.valid { color: #5af78e; }
+.command-text.valid { color: #00ff88; }
 .command-text.invalid { color: #f85149; }
 .command-text.error { color: #f85149; }
 .command-text.info { color: #58a6ff; }
 .command-text.default { color: #d4d4d4; }
 
 /* Output text */
-.output.valid { color: #5af78e; }
+.output.valid { color: #00ff88; }
 .output.error { color: #f85149; }
 .output.info { color: #58a6ff; }
 .output.default { color: #d4d4d4; }
@@ -129,7 +148,7 @@
   font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Courier New', monospace;
   font-size: 1rem;
   outline: none;
-  caret-color: #5af78e;
+  caret-color: #00ff88;
 }
 
 /* Blinking cursor effect */
@@ -140,4 +159,16 @@
 
 @keyframes blink {
   50% { opacity: 0; }
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .terminal {
+    margin: 1rem;
+    max-width: 100%;
+  }
+
+  .terminal-body {
+    max-height: min(400px, 50vh); /* Less height on mobile for keyboard space */
+  }
 }

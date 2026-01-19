@@ -25,13 +25,17 @@ func main() {
 	}
 	starRanges := []string{
 		"stars:100..200",
-		"stars:201..400",
-		"stars:401..600",
-		"stars:601..801",
-		"stars:801..1000",
-		"stars:1001..1200",
-		"stars:1201..1400",
-		"stars:1401..2000",
+		"stars:201..300",
+		"stars:301..400",
+		"stars:401..500",
+		"stars:501..600",
+		"stars:601..700",
+		"stars:701..800",
+		"stars:801..900",
+		"stars:901..1000",
+		"stars:1001..1100",
+		"stars:1101..1200",
+		"stars:1201..1300",
 	}
 	type ReadmeData struct {
 		Readme string `json:"readme"` // struct so its not a single array and easier to loop over

@@ -1,1 +1,1 @@
-Data quality back to bite me in the ass.
+Decesion: auto reggresive summarys to  multi head classfication or sequence labeling

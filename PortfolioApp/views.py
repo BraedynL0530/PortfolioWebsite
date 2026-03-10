@@ -2,8 +2,8 @@ import json
 from django.http import JsonResponse
 import requests
 from django.views.decorators.csrf import csrf_exempt
-from models import Repositorys
-from PortfolioApp.utils import summarizeReadme
+from .models import Repositorys
+from services.summrization import summarizeContent
 
 
 # Create your views here.
@@ -18,21 +18,25 @@ def getRepos(request):
         try:
             repos = json.loads(request.body)
             for repoData in repos:
-                summary = utils(summarizeReadme(repoData.get('readme', '')))
+                if not all(k in repoData for k in ["name", "readme"]):
+                    return JsonResponse({'error': 'Missing required fields'}, status=400)
 
                 name = repoData["name"]
-                readMe = repoData["readme"]
+                readme = repoData["readme"]
                 languages = repoData.get("languages", {})
 
                 for language, bytes in repoData['languages'].items():
                     print(f"{name} uses {language}: {bytes} bytes")
 
+                summarizeContent.delay(readme, name)
 
                 Repositorys.objects.update_or_create(
                     name=name,
-                    summary=summary,
-                    readMe=readMe,
-                    languages=languages
+                    defualts = {
+                        'summary':None,
+                        'readMe':readme,
+                        'languages':languages
+                    }
                 )
 
             return JsonResponse({

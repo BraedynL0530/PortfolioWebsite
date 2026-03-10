@@ -1,5 +1,5 @@
 from django.db import models
-
+import torch
 # Create your models here.
 class Repositorys(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -14,3 +14,13 @@ class Repositorys(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class SummarizerModel(models.Model):
+    name = models.CharField(max_length=100)
+    version = models.IntegerField()
+    model_path = models.CharField(max_length=255)  #models/summarizer_v2.pt or however else
+
+    @property
+    def get_model(self):
+        return torch.load(self.model_path)

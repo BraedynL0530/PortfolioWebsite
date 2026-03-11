@@ -8,10 +8,6 @@ from services.summrization import summarizeContent
 
 # Create your views here.
 
-def utils(param):
-    pass
-
-
 @csrf_exempt
 def getRepos(request):
     if request.method == "POST":

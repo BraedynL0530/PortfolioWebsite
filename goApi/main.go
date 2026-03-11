@@ -2,16 +2,19 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"net/http"
 	"os"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/redis/go-redis/v9"
 )
 
 type RepoData struct {
@@ -21,10 +24,28 @@ type RepoData struct {
 }
 
 var (
-	cachedRepos []RepoData
-	cacheMutex  sync.RWMutex
-	isCached    bool
+	redisClient *redis.Client
+	ctx         = context.Background()
+	cacheTTL    = 1 * time.Hour
 )
+
+func init() {
+	redisAddr := os.Getenv("REDIS_ADDR")
+	if redisAddr == "" {
+		redisAddr = "localhost:6379"
+	}
+
+	redisClient = redis.NewClient(&redis.Options{
+		Addr:     redisAddr,
+		Password: os.Getenv("REDIS_PASSWORD"),
+		DB:       0,
+	})
+
+	// Test connection
+	if _, err := redisClient.Ping(ctx).Result(); err != nil {
+		panic("Failed to connect to Redis: " + err.Error())
+	}
+}
 
 func fetchRepoData(repoName string) RepoData {
 	repo := RepoData{
@@ -124,7 +145,38 @@ func sendToDjango(repos []RepoData) error {
 	return nil
 }
 
-func TEMP() { //rename back to main on prod
+// Cache operations
+func getCachedRepos() ([]RepoData, error) {
+	val, err := redisClient.Get(ctx, "repos:all").Result()
+	if err == redis.Nil {
+		return nil, nil // Cache miss
+	}
+	if err != nil {
+		return nil, err // Redis error
+	}
+
+	var repos []RepoData
+	if err := json.Unmarshal([]byte(val), &repos); err != nil {
+		return nil, err
+	}
+
+	return repos, nil
+}
+
+func setCachedRepos(repos []RepoData) error {
+	jsonData, err := json.Marshal(repos)
+	if err != nil {
+		return err
+	}
+
+	return redisClient.Set(ctx, "repos:all", string(jsonData), cacheTTL).Err()
+}
+
+func invalidateCache() error {
+	return redisClient.Del(ctx, "repos:all").Err()
+}
+
+func TEMP() { // rename back to main on prod
 	godotenv.Load()
 
 	r := gin.Default()
@@ -140,25 +192,25 @@ func TEMP() { //rename back to main on prod
 
 	// Endpoint to get raw repos (for testing)
 	r.GET("/api/repos", func(c *gin.Context) {
-		cacheMutex.RLock()
-		if isCached && len(cachedRepos) > 0 {
-			repos := cachedRepos
-			cacheMutex.RUnlock()
-			c.JSON(200, gin.H{"data": repos, "cached": true})
+		// Try to get from cache first
+		cachedRepos, err := getCachedRepos()
+		if err == nil && cachedRepos != nil {
+			c.JSON(200, gin.H{"data": cachedRepos, "cached": true})
 			return
 		}
-		cacheMutex.RUnlock()
 
+		// Cache miss or error, fetch fresh data
 		allRepos, err := getAllRepos()
 		if err != nil {
 			c.JSON(500, gin.H{"error": "failed to fetch repos"})
 			return
 		}
 
-		cacheMutex.Lock()
-		cachedRepos = allRepos
-		isCached = true
-		cacheMutex.Unlock()
+		// Try to cache the results
+		if err := setCachedRepos(allRepos); err != nil {
+			// Log but don't fail the request
+			gin.DefaultErrorWriter.Write([]byte("Warning: failed to cache repos: " + err.Error()))
+		}
 
 		c.JSON(200, gin.H{"data": allRepos, "cached": false})
 	})
@@ -176,12 +228,28 @@ func TEMP() { //rename back to main on prod
 			return
 		}
 
-		cacheMutex.Lock()
-		cachedRepos = allRepos
-		isCached = true
-		cacheMutex.Unlock()
+		// Update cache with fresh data
+		if err := setCachedRepos(allRepos); err != nil {
+			gin.DefaultErrorWriter.Write([]byte("Warning: failed to cache repos: " + err.Error()))
+		}
 
 		c.JSON(200, gin.H{"message": "synced to django", "count": len(allRepos)})
+	})
+
+	// endpoint to check cache status
+	r.GET("/api/cache/status", func(c *gin.Context) {
+		cachedRepos, err := getCachedRepos()
+		if err != nil {
+			c.JSON(500, gin.H{"error": "cache error", "details": err.Error()})
+			return
+		}
+
+		if cachedRepos == nil {
+			c.JSON(200, gin.H{"status": "empty"})
+			return
+		}
+
+		c.JSON(200, gin.H{"status": "cached", "count": len(cachedRepos)})
 	})
 
 	port := os.Getenv("PORT")

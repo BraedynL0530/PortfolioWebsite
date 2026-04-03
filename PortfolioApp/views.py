@@ -3,10 +3,8 @@ from django.http import JsonResponse
 import requests
 from django.views.decorators.csrf import csrf_exempt
 from .models import Repositorys
-from services.summrization import summarizeContent
+from .services.summrization import summarizeContent
 
-
-# Create your views here.
 
 @csrf_exempt
 def getRepos(request):

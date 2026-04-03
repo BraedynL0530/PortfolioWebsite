@@ -1,5 +1,6 @@
 from django.db import models
 import torch
+
 # Create your models here.
 class Repositorys(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -18,7 +19,7 @@ class Repositorys(models.Model):
 
 class SummarizerModel(models.Model):
     name = models.CharField(max_length=100)
-    version = models.IntegerField()
+    version = models.FloatField()
     model_path = models.CharField(max_length=255)  #models/summarizer_v2.pt or however else
 
     @property
